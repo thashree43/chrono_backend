@@ -2,6 +2,7 @@ import Product from "../model/productModel.js"
 import jwt from "jsonwebtoken"
 import { SalesSchema } from "../model/salesModel.js";
 import userSchema from "../model/usermodel.js";
+import {sendSalesReportEmail} from "../service/reportservice.js"
 
 export const addsalesentry = async (req, res) => {
     try {
@@ -112,4 +113,20 @@ export const addsalesentry = async (req, res) => {
             error: error.message 
         }); 
     }
+  }
+  export const emailSalesReport = async(req,res)=>{
+    try {
+        const { reportData, email } = req.body;
+    
+    if (!reportData || !email) {
+      return res.status(400).json({ message: 'Report data and email are required' });
+    }
+
+    await sendSalesReportEmail(reportData, email);
+    
+    res.status(200).json({ message: 'Sales report email sent successfully' });
+  } catch (error) {
+    console.error('Email sales report error:', error);
+    res.status(500).json({ message: 'Failed to send sales report email', error: error.message });
+  }
   }

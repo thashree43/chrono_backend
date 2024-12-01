@@ -4,6 +4,9 @@ import {
   VerifyOtp,
   ResendOtp,
   Login,
+  Userlogout,
+  Forgetpassword,
+  Updatepassword,
 } from '../controller/authcontroller.js';
 import {
   Addproduct,
@@ -12,7 +15,7 @@ import {
   Deleteproduct,
 } from '../controller/productcontroller.js';
 import { Addcustomer,getCustomers,updateCustomer,deleteCustomer} from '../controller/customercontroller.js';
-import {addsalesentry,getsalesentries} from "../controller/salecontroller.js"
+import {addsalesentry,getsalesentries,emailSalesReport} from "../controller/salecontroller.js"
 import multer from 'multer';
 import path from 'path';
 import multerS3 from 'multer-s3';
@@ -44,6 +47,9 @@ userroute.post('/register', Register);
 userroute.post('/verify-otp', VerifyOtp);
 userroute.post('/resend-otp', ResendOtp);
 userroute.post('/login', Login);
+userroute.post('/logout',Userlogout)
+userroute.post('/reset-password',Forgetpassword)
+userroute.patch('/updatepassword',Updatepassword)
 
 // product part
 userroute.post('/add-product', upload.single('image'), Addproduct);
@@ -60,4 +66,5 @@ userroute.delete('/delete-customer/:id',deleteCustomer)
 // Sales part
 userroute.post('/add-salesentry',addsalesentry)
 userroute.get('/get-salesentry',getsalesentries)
+userroute.post('/sales/email-report',emailSalesReport)
 export default userroute;

@@ -27,6 +27,10 @@ const UserModel = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    token: {
+      type: String,
+      default: "",
+    },
     product: [
       {
         type: mongoose.Schema.Types.ObjectId,

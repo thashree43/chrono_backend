@@ -4,6 +4,7 @@ import { generatetoken } from '../service/token.js';
 import { sendOtpVerificationMail } from '../service/otpservice.js';
 import OtpSchema from '../model/otpModel.js';
 import { token } from 'morgan';
+import { sendforgetemail } from '../service/sendforgetemail.js';
 
 export const Register = async (req, res) => {
   console.log('the data while in register', req.body);
@@ -82,10 +83,8 @@ export const ResendOtp = async (req, res) => {
   const { email } = req.body;
 
   try {
-    // Delete any existing OTP for this email
     await OtpSchema.deleteOne({ email });
 
-    // Generate and send new OTP
     const otp = await sendOtpVerificationMail({ email }, res);
 
     return res.status(200).json({
@@ -101,45 +100,37 @@ export const Login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Validate input
     if (!email || !password) {
       return res
         .status(400)
         .json({ message: 'Email and password are required' });
     }
 
-    // Find user by email
     const user = await userSchema.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'User does not exist' });
     }
 
-    // Check password using bcrypt
     const isPasswordMatch = await bcrypt.compare(password, user.password);
 
     if (!isPasswordMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Check if user is verified
     if (!user.is_Verified) {
       return res.status(403).json({ message: 'Please verify your account' });
     }
 
-    // Generate token
     const token = generatetoken({
       id: user._id,
       email: user.email,
     });
 
-    // Set cookie
     res.cookie('jwt', token, {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
     });
-
-    // Respond with user info and token
     res.status(200).json({
       message: 'User successfully logged in',
       user: {
@@ -152,5 +143,97 @@ export const Login = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error during login' });
+  }
+};
+
+export const Userlogout = async (req, res) => {
+  try {
+    const token = req.cookies.jwt;
+
+    if (token) {
+      res.cookie('jwt', '', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+      });
+    }
+    res.status(200).json({ message: 'logout successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error during logout' });
+  }
+};
+export const Forgetpassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    console.log('the email for resetpassword', email);
+
+    const user = await userSchema.findOne({ email: email });
+
+    if (!user) {
+      return res.status(404).json({ message: "This email doesn't exist" });
+    }
+
+    if (user.is_Verified === true) {
+      const token = generatetoken({ id: user._id, email });
+      await userSchema.updateOne({ email: email }, { $set: { token: token } });
+
+      await sendforgetemail(user.name, user.email, token);
+
+      return res.status(200).json({
+        message: 'Password reset link sent successfully',
+      });
+    } else {
+      return res.status(400).json({
+        message: 'User is not verified',
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: 'Server error during reset password',
+      error: error.message,
+    });
+  }
+};
+export const Updatepassword = async (req, res) => {
+  const { newPassword, token } = req.body;
+  console.log('the datas for updatepassword', req.body);
+  
+  try {
+    if (!newPassword || !token) {
+      return res.status(209).json({ message: 'Token or password is missing' });
+    }
+
+    const user = await userSchema.findOne({ token: token });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found or invalid token' });
+    }
+
+    const passwordhash = await bcrypt.hash(newPassword, 10);
+
+    const updatepassword = await userSchema.findByIdAndUpdate(
+      user._id,
+      { 
+        $set: { 
+          password: passwordhash,
+          token: null 
+        } 
+      },
+      { new: true } 
+    );
+
+    if (!updatepassword) {
+      return res.status(500).json({ message: 'Failed to update password' });
+    }
+
+    res.status(200).json({ message: 'Password successfully updated' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: 'Server error during update password',
+      error: error.message,
+    });
   }
 };
