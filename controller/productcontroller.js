@@ -16,42 +16,47 @@ export const Addproduct = async (req, res) => {
     if (!name || !description || !price || !stock || !status) {
       return res.status(400).json({ message: 'All fields are required' });
     }
-     // Comprehensive uniqueness check
-     const existingProduct = await Product.findOne({
-        user: userId,
-        $or: [
-          { name: { $regex: new RegExp(`^${name.trim()}$`, 'i') } },
-          { description: { $regex: new RegExp(`^${description.trim()}$`, 'i') } }
-        ]
+    // Comprehensive uniqueness check
+    const existingProduct = await Product.findOne({
+      user: userId,
+      $or: [
+        { name: { $regex: new RegExp(`^${name.trim()}$`, 'i') } },
+        { description: { $regex: new RegExp(`^${description.trim()}$`, 'i') } },
+      ],
+    });
+
+    // Detailed uniqueness validation
+    if (existingProduct) {
+      let errorMessage = '';
+      if (existingProduct.name.toLowerCase() === name.toLowerCase().trim()) {
+        errorMessage =
+          'A product with this name already exists for your account';
+      } else if (
+        existingProduct.description.toLowerCase() ===
+        description.toLowerCase().trim()
+      ) {
+        errorMessage =
+          'A product with this description already exists for your account';
+      }
+
+      return res.status(409).json({
+        success: false,
+        message: errorMessage,
       });
-  
-      // Detailed uniqueness validation
-      if (existingProduct) {
-        let errorMessage = '';
-        if (existingProduct.name.toLowerCase() === name.toLowerCase().trim()) {
-          errorMessage = 'A product with this name already exists for your account';
-        } else if (existingProduct.description.toLowerCase() === description.toLowerCase().trim()) {
-          errorMessage = 'A product with this description already exists for your account';
-        }
-  
-        return res.status(409).json({
-          success: false,
-          message: errorMessage
-        });
-      }
-  
-      // Validate and sanitize numeric inputs
-      const sanitizedPrice = parseFloat(price);
-      const sanitizedStock = parseInt(stock);
-  
-      // Validate numeric inputs
-      if (isNaN(sanitizedPrice) || sanitizedPrice <= 0) {
-        return res.status(400).json({ message: 'Invalid price' });
-      }
-  
-      if (isNaN(sanitizedStock) || sanitizedStock < 0) {
-        return res.status(400).json({ message: 'Invalid stock quantity' });
-      }
+    }
+
+    // Validate and sanitize numeric inputs
+    const sanitizedPrice = parseFloat(price);
+    const sanitizedStock = parseInt(stock);
+
+    // Validate numeric inputs
+    if (isNaN(sanitizedPrice) || sanitizedPrice <= 0) {
+      return res.status(400).json({ message: 'Invalid price' });
+    }
+
+    if (isNaN(sanitizedStock) || sanitizedStock < 0) {
+      return res.status(400).json({ message: 'Invalid stock quantity' });
+    }
     // Create new product with user association
     const newProduct = new Product({
       name,

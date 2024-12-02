@@ -1,15 +1,15 @@
-import {transporter} from "./otpservice.js"
-import dotenv from "dotenv"
-dotenv.config()
+import { transporter } from './otpservice.js';
+import dotenv from 'dotenv';
+dotenv.config();
 export const sendforgetemail = async (name, email, token) => {
-    try {
-      const resetLink = `${process.env.CLIENT_URL}/updatepassword/${token}`;
-      
-      const mailOptions = {
-        from: process.env.EMAIL_USERNAME,
-        to: email,
-        subject: 'Reset Your CHRONO Account Password',
-        html: `
+  try {
+    const resetLink = `${process.env.CLIENT_URL}/updatepassword/${token}`;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USERNAME,
+      to: email,
+      subject: 'Reset Your CHRONO Account Password',
+      html: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -44,12 +44,12 @@ export const sendforgetemail = async (name, email, token) => {
         </body>
         </html>
       `,
-      };
-  
-      await transporter.sendMail(mailOptions);
-      console.log('Password reset email sent successfully');
-    } catch (error) {
-      console.error('Error sending password reset email:', error);
-      throw new Error('Failed to send password reset email');
-    }
-  };
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log('Password reset email sent successfully');
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    throw new Error('Failed to send password reset email');
+  }
+};

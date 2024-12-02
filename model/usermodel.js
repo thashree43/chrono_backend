@@ -29,7 +29,7 @@ const UserModel = mongoose.Schema(
     },
     token: {
       type: String,
-      default: "",
+      default: '',
     },
     product: [
       {
@@ -43,10 +43,12 @@ const UserModel = mongoose.Schema(
         ref: 'Customer',
       },
     ],
-    sales:[{
-      type:mongoose.Schema.Types.ObjectId,
-      ref:"Sales"
-    }]
+    sales: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Sales',
+      },
+    ],
   },
 
   { timestamps: true }

@@ -199,29 +199,31 @@ export const Forgetpassword = async (req, res) => {
 export const Updatepassword = async (req, res) => {
   const { newPassword, token } = req.body;
   console.log('the datas for updatepassword', req.body);
-  
+
   try {
     if (!newPassword || !token) {
       return res.status(209).json({ message: 'Token or password is missing' });
     }
 
     const user = await userSchema.findOne({ token: token });
-    
+
     if (!user) {
-      return res.status(404).json({ message: 'User not found or invalid token' });
+      return res
+        .status(404)
+        .json({ message: 'User not found or invalid token' });
     }
 
     const passwordhash = await bcrypt.hash(newPassword, 10);
 
     const updatepassword = await userSchema.findByIdAndUpdate(
       user._id,
-      { 
-        $set: { 
+      {
+        $set: {
           password: passwordhash,
-          token: null 
-        } 
+          token: null,
+        },
       },
-      { new: true } 
+      { new: true }
     );
 
     if (!updatepassword) {

@@ -14,8 +14,19 @@ import {
   updateproduct,
   Deleteproduct,
 } from '../controller/productcontroller.js';
-import { Addcustomer,getCustomers,updateCustomer,deleteCustomer} from '../controller/customercontroller.js';
-import {addsalesentry,getsalesentries,emailSalesReport} from "../controller/salecontroller.js"
+import {
+  Addcustomer,
+  getCustomers,
+  updateCustomer,
+  deleteCustomer,
+} from '../controller/customercontroller.js';
+import {
+  addsalesentry,
+  getsalesentries,
+  emailSalesReport,
+  Dahboarddatas,
+} from '../controller/salecontroller.js';
+import {authsecure} from "../middleware/authmiddleware.js"
 import multer from 'multer';
 import path from 'path';
 import multerS3 from 'multer-s3';
@@ -42,29 +53,32 @@ const upload = multer({
   }),
 });
 const userroute = express.Router();
-
+// Authentication routes (no authentication required)
 userroute.post('/register', Register);
 userroute.post('/verify-otp', VerifyOtp);
 userroute.post('/resend-otp', ResendOtp);
 userroute.post('/login', Login);
-userroute.post('/logout',Userlogout)
-userroute.post('/reset-password',Forgetpassword)
-userroute.patch('/updatepassword',Updatepassword)
 
-// product part
-userroute.post('/add-product', upload.single('image'), Addproduct);
-userroute.get('/get-products', getproduct);
-userroute.put('/products/:id', upload.single('image'), updateproduct);
-userroute.delete('/delete-product/:id', Deleteproduct);
+// Routes that require authentication
+userroute.post('/logout', authsecure, Userlogout);
+userroute.post('/reset-password', authsecure, Forgetpassword);
+userroute.patch('/updatepassword', authsecure, Updatepassword);
 
-// Customer part
-userroute.post('/add-customer', Addcustomer);
-userroute.get('/get-customers',getCustomers)
-userroute.put('/update-customer/:id',updateCustomer)
-userroute.delete('/delete-customer/:id',deleteCustomer)
+// Product routes with authentication
+userroute.post('/add-product', authsecure, upload.single('image'), Addproduct);
+userroute.get('/get-products', authsecure, getproduct);
+userroute.put('/products/:id', authsecure, upload.single('image'), updateproduct);
+userroute.delete('/delete-product/:id', authsecure, Deleteproduct);
 
-// Sales part
-userroute.post('/add-salesentry',addsalesentry)
-userroute.get('/get-salesentry',getsalesentries)
-userroute.post('/sales/email-report',emailSalesReport)
+// Customer routes with authentication
+userroute.post('/add-customer', authsecure, Addcustomer);
+userroute.get('/get-customers', authsecure, getCustomers);
+userroute.put('/update-customer/:id', authsecure, updateCustomer);
+userroute.delete('/delete-customer/:id', authsecure, deleteCustomer);
+
+// Sales routes with authentication
+userroute.post('/add-salesentry', authsecure, addsalesentry);
+userroute.get('/get-salesentry', authsecure, getsalesentries);
+userroute.post('/sales/email-report', authsecure, emailSalesReport);
+userroute.get('/dashboard',authsecure,Dahboarddatas)
 export default userroute;

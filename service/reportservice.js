@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import {transporter} from "./otpservice.js"
+import { transporter } from './otpservice.js';
 
 export const sendSalesReportEmail = async (reportData, recipientEmail) => {
   try {
@@ -17,7 +17,9 @@ export const sendSalesReportEmail = async (reportData, recipientEmail) => {
             </tr>
           </thead>
           <tbody>
-            ${data.map(sale => `
+            ${data
+              .map(
+                (sale) => `
               <tr>
                 <td style="border: 1px solid #ddd; padding: 8px;">${sale.customerName}</td>
                 <td style="border: 1px solid #ddd; padding: 8px;">${sale.productName}</td>
@@ -25,14 +27,19 @@ export const sendSalesReportEmail = async (reportData, recipientEmail) => {
                 <td style="border: 1px solid #ddd; padding: 8px;">₹${sale.total.toFixed(2)}</td>
                 <td style="border: 1px solid #ddd; padding: 8px;">${new Date(sale.Date).toLocaleDateString()}</td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
           </tbody>
         </table>
       `;
     };
 
     // Calculate total sales
-    const totalSales = reportData.reduce((total, sale) => total + sale.total, 0);
+    const totalSales = reportData.reduce(
+      (total, sale) => total + sale.total,
+      0
+    );
 
     // Compose email options
     const mailOptions = {
