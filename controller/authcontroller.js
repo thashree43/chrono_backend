@@ -129,7 +129,9 @@ export const Login = async (req, res) => {
     res.cookie('jwt', token, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
+      domain:'https://chrono-frontend.vercel.app'
+
     });
     res.status(200).json({
       message: 'User successfully logged in',
