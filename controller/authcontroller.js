@@ -130,7 +130,7 @@ export const Login = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      domain:'https://chrono-frontend.vercel.app'
+      domain:'chrono-frontend.vercel.app'
 
     });
     res.status(200).json({
