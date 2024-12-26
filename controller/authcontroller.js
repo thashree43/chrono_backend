@@ -130,8 +130,6 @@ export const Login = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      domain:'.vercel.app'
-
     });
     res.status(200).json({
       message: 'User successfully logged in',
@@ -157,6 +155,7 @@ export const Userlogout = async (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
+        
       });
     }
     res.status(200).json({ message: 'logout successfully' });
