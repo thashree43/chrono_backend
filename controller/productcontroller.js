@@ -97,7 +97,7 @@ export const getproduct = async (req, res) => {
     if (!token) {
       return res
         .status(401)
-        .json({ message: 'Authentication token is required' });
+        .json({ message: 'Authentication token is required' ,products:[]});
     }
 
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_KEY);
@@ -117,7 +117,7 @@ export const getproduct = async (req, res) => {
 
     res.status(200).json({
       message: 'Products retrieved successfully',
-      products: products,
+      products,
     });
   } catch (error) {
     console.error('Error retrieving products:', error);
