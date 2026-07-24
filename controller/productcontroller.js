@@ -7,6 +7,8 @@ import { assign } from 'nodemailer/lib/shared/index.js';
 export const Addproduct = async (req, res) => {
   try {
     const token = req.cookies.jwt;
+    console.log(token);
+    
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_KEY);
     const userId = decoded.id;
 
