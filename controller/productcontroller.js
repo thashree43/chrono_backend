@@ -92,6 +92,8 @@ export const Addproduct = async (req, res) => {
 };
 export const getproduct = async (req, res) => {
   try {
+    console.log("heloooooooooo");
+    
     const token = req.cookies.jwt;
 
     if (!token) {
